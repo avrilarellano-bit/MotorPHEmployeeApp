@@ -1,0 +1,92 @@
+package MAINMP;
+
+public class Employee {
+	
+
+	    private int employeeID;
+	    private String name;
+	    private String position;
+	    private String department;
+	    private String email;
+	    private String contactNumber;
+	    private double hourlyRate;
+
+	    private double clockInTime;
+	    private double clockOutTime;
+
+	    // Constructor
+	    public Employee(int employeeID, String name, String position, String department, String email, String contactNumber, double hourlyRate) {
+	        this.employeeID = employeeID;
+	        this.name = name;
+	        this.position = position;
+	        this.department = department;
+	        this.email = email;
+	        this.contactNumber = contactNumber;
+	        this.hourlyRate = hourlyRate;
+	    }
+
+	    // Method to view profile
+	    public void viewProfile() {
+	        System.out.println("\n--- Employee Profile ---");
+	        System.out.println("Employee ID: " + employeeID);
+	        System.out.println("Name: " + name);
+	        System.out.println("Position: " + position);
+	        System.out.println("Department: " + department);
+	        System.out.println("Email: " + email);
+	        System.out.println("Contact Number: " + contactNumber);
+	        System.out.println("Hourly Rate: PHP " + hourlyRate);
+	        System.out.println("-------------------------\n");
+	    }
+
+	    // Method to update profile
+	    public void updateProfile(String email, String contactNumber) {
+	        this.email = email;
+	        this.contactNumber = contactNumber;
+	        System.out.println("\nProfile updated successfully!\n");
+	    }
+
+	    // Method to clock in
+	    public void clockIn(double time) {
+	        this.clockInTime = time;
+	        System.out.println("\n" + name + " clocked in at " + clockInTime + "\n");
+	    }
+
+	    // Method to clock out
+	    public void clockOut(double time) {
+	        this.clockOutTime = time;
+	        System.out.println("\n" + name + " clocked out at " + clockOutTime + "\n");
+	    }
+
+	    // Method to calculate daily pay based on clock in/out
+	    public double calculateDailyPay() {
+	        double hoursWorked = clockOutTime - clockInTime;
+
+	        if (hoursWorked < 0) {
+	            System.out.println("Error: Clock out time cannot be earlier than clock in time.");
+	            return 0;
+	        }
+
+	        return hourlyRate * hoursWorked;
+	    }
+
+	    // Getter for hourly rate
+	    public double getHourlyRate() {
+	        return hourlyRate;
+	    }
+
+	    // Getter for name
+	    public String getName() {
+	        return name;
+	    }
+
+	    // Getter for hours worked
+	    public double getHoursWorked() {
+	        return clockOutTime - clockInTime;
+	    }
+
+		public double calculatePayroll(int workingDays) {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+		
+}
