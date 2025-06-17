@@ -1,7 +1,11 @@
 package MAINMP;
 
+import java.util.ArrayList;
+
 public class Employee {
 	
+
+
 
 	    private int employeeID;
 	    private String name;
@@ -13,6 +17,8 @@ public class Employee {
 
 	    private double clockInTime;
 	    private double clockOutTime;
+
+	    private ArrayList<String> attendanceRecords = new ArrayList<>();
 
 	    // Constructor
 	    public Employee(int employeeID, String name, String position, String department, String email, String contactNumber, double hourlyRate) {
@@ -55,9 +61,18 @@ public class Employee {
 	    public void clockOut(double time) {
 	        this.clockOutTime = time;
 	        System.out.println("\n" + name + " clocked out at " + clockOutTime + "\n");
+
+	        double hoursWorked = clockOutTime - clockInTime;
+
+	        if (hoursWorked > 0) {
+	            String log = "Clock In: " + clockInTime + ", Clock Out: " + clockOutTime + ", Hours Worked: " + hoursWorked + " hours";
+	            attendanceRecords.add(log);
+	        } else {
+	            System.out.println("Error: Clock out time must be later than clock in time.");
+	        }
 	    }
 
-	    // Method to calculate daily pay based on clock in/out
+	    // Method to calculate daily pay
 	    public double calculateDailyPay() {
 	        double hoursWorked = clockOutTime - clockInTime;
 
@@ -69,24 +84,43 @@ public class Employee {
 	        return hourlyRate * hoursWorked;
 	    }
 
-	    // Getter for hourly rate
+	    // Method to view attendance logs
+	    public void viewAttendance() {
+	        System.out.println("\n--- Attendance Records ---");
+
+	        if (attendanceRecords.isEmpty()) {
+	            System.out.println("No attendance records yet.");
+	        } else {
+	            for (String record : attendanceRecords) {
+	                System.out.println(record);
+	            }
+	        }
+
+	        System.out.println("---------------------------\n");
+	    }
+
 	    public double getHourlyRate() {
 	        return hourlyRate;
 	    }
 
-	    // Getter for name
 	    public String getName() {
 	        return name;
 	    }
 
-	    // Getter for hours worked
 	    public double getHoursWorked() {
 	        return clockOutTime - clockInTime;
 	    }
 
-		public double calculatePayroll(int workingDays) {
-			// TODO Auto-generated method stub
-			return 0;
-		}
+	    public double getClockInTime() {
+	        return clockInTime;
+	    }
+
+	    public double getClockOutTime() {
+	        return clockOutTime;
+	    }
+	}
+
+
+	
 		
 }
