@@ -1,0 +1,33 @@
+package MAINMP;
+
+public class Sched{
+	    private int scheduleID;
+	    private String shiftDate;
+	    private String shiftStart;
+	    private String shiftEnd;
+
+	    public Sched(int scheduleID, String shiftDate, String shiftStart, String shiftEnd) {
+	        this.setScheduleID(scheduleID);
+	        this.shiftDate = shiftDate;
+	        this.shiftStart = shiftStart;
+	        this.shiftEnd = shiftEnd;
+	    }
+
+	    public void viewSchedule() {
+	        System.out.println("Shift Date: " + shiftDate + " | Start: " + shiftStart + " | End: " + shiftEnd);
+	    }
+
+	    public void requestChange(String newShiftStart, String newShiftEnd) {
+	        this.shiftStart = newShiftStart;
+	        this.shiftEnd = newShiftEnd;
+	        System.out.println("Shift change requested: New Start - " + newShiftStart + ", New End - " + newShiftEnd);
+	    }
+
+		public int getScheduleID() {
+			return scheduleID;
+		}
+
+		public void setScheduleID(int scheduleID) {
+			this.scheduleID = scheduleID;
+		}
+	}
