@@ -1,0 +1,206 @@
+package MAINMP;
+import java.util.ArrayList;
+import java.util.Scanner;
+
+public class EmployeeManagement {
+	
+
+
+	    private int employeeID;
+	    private String name;
+	    private String position;
+	    private String department;
+	    private String email;
+	    private String contactNumber;
+	    private double hourlyRate;
+
+	    private double clockInTime;
+	    private double clockOutTime;
+
+	    private ArrayList<String> attendanceRecords = new ArrayList<>();
+
+	    // Constructor
+	    public void Employee(int employeeID, String name, String position, String department, String email, String contactNumber, double hourlyRate) {
+	        this.employeeID = employeeID;
+	        this.name = name;
+	        this.position = position;
+	        this.department = department;
+	        this.email = email;
+	        this.contactNumber = contactNumber;
+	        this.hourlyRate = hourlyRate;
+	    }
+
+	    // Method to view profile
+	    public void viewProfile() {
+	        System.out.println("\n--- Employee Profile ---");
+	        System.out.println("Employee ID: " + employeeID);
+	        System.out.println("Name: " + name);
+	        System.out.println("Position: " + position);
+	        System.out.println("Department: " + department);
+	        System.out.println("Email: " + email);
+	        System.out.println("Contact Number: " + contactNumber);
+	        System.out.println("Hourly Rate: PHP " + hourlyRate);
+	        System.out.println("-------------------------\n");
+	    }
+
+	    // Method to update profile
+	    public void updateProfile(String email, String contactNumber) {
+	        this.email = email;
+	        this.contactNumber = contactNumber;
+	        System.out.println("\nProfile updated successfully!\n");
+	    }
+
+	    // Method to clock in
+	    public void clockIn(double time) {
+	        this.clockInTime = time;
+	        System.out.println("\n" + name + " clocked in at " + clockInTime + "\n");
+	    }
+
+	    // Method to clock out
+	    public void clockOut(double time) {
+	        this.clockOutTime = time;
+	        System.out.println("\n" + name + " clocked out at " + clockOutTime + "\n");
+
+	        double hoursWorked = clockOutTime - clockInTime;
+
+	        if (hoursWorked > 0) {
+	            String log = "Clock In: " + clockInTime + ", Clock Out: " + clockOutTime + ", Hours Worked: " + hoursWorked + " hours";
+	            attendanceRecords.add(log);
+	        } else {
+	            System.out.println("Error: Clock out time must be later than clock in time.");
+	        }
+	    }
+
+	    // Method to calculate daily pay
+	    public double calculateDailyPay() {
+	        double hoursWorked = clockOutTime - clockInTime;
+
+	        if (hoursWorked < 0) {
+	            System.out.println("Error: Clock out time cannot be earlier than clock in time.");
+	            return 0;
+	        }
+
+	        return hourlyRate * hoursWorked;
+	    }
+
+	    // Method to view attendance logs
+	    public void viewAttendance() {
+	        System.out.println("\n--- Attendance Records ---");
+
+	        if (attendanceRecords.isEmpty()) {
+	            System.out.println("No attendance records yet.");
+	        } else {
+	            for (String record : attendanceRecords) {
+	                System.out.println(record);
+	            }
+	        }
+
+	        System.out.println("---------------------------\n");
+	    }
+
+	    public double getHourlyRate() {
+	        return hourlyRate;
+	    }
+
+	    public String getName() {
+	        return name;
+	    }
+
+	    public double getHoursWorked() {
+	        return clockOutTime - clockInTime;
+	    }
+
+
+	    public static void main(String[] args) {
+	        Scanner scanner = new Scanner(System.in);
+
+	        Employee employee = new Employee(101, "Juan Dela Cruz", "Developer", "IT", "juan@example.com", "09123456789", 62.5);
+
+	        int choice = 0;
+
+	        do {
+	            System.out.println("========== MotorPH Employee App ==========");
+	            System.out.println("1. View Employee Profile");
+	            System.out.println("2. Clock In");
+	            System.out.println("3. Clock Out");
+	            System.out.println("4. Update Profile");
+	            System.out.println("5. View Daily Payroll");
+	            System.out.println("6. View Attendance Records");
+	            System.out.println("7. Exit");
+	            System.out.print("Enter your choice: ");
+
+	            while (!scanner.hasNextInt()) {
+	                System.out.println("Invalid input. Please enter a number.");
+	                scanner.next();
+	            }
+
+	            choice = scanner.nextInt();
+	            scanner.nextLine(); // Consume newline
+
+	            switch (choice) {
+	                case 1:
+	                    employee.viewProfile();
+	                    break;
+
+	                case 2:
+	                    System.out.print("Enter clock-in time (e.g., 9.0 for 9 AM): ");
+	                    double clockInTime = getValidDoubleInput(scanner);
+	                    employee.clockIn(clockInTime);
+	                    break;
+
+	                case 3:
+	                    System.out.print("Enter clock-out time (e.g., 17.5 for 5:30 PM): ");
+	                    double clockOutTime = getValidDoubleInput(scanner);
+	                    employee.clockOut(clockOutTime);
+	                    break;
+
+	                case 4:
+	                    System.out.print("Enter new email: ");
+	                    String newEmail = scanner.nextLine();
+
+	                    System.out.print("Enter new contact number: ");
+	                    String newContact = scanner.nextLine();
+
+	                    employee.updateProfile(newEmail, newContact);
+	                    break;
+
+	                case 5:
+	                    double hoursWorked = employee.getHoursWorked();
+	                    if (hoursWorked <= 0) {
+	                        System.out.println("\nYou must clock in and clock out first to compute payroll.\n");
+	                    } else {
+	                        double dailyPay = employee.calculateDailyPay();
+	                        System.out.println("\n--- Payroll Details ---");
+	                        System.out.println("Employee Name: " + employee.getName());
+	                        System.out.println("Hours Worked: " + hoursWorked + " hours");
+	                        System.out.println("Hourly Rate: PHP " + employee.getHourlyRate());
+	                        System.out.println("Total Pay for the Day: PHP " + dailyPay);
+	                        System.out.println("-----------------------\n");
+	                    }
+	                    break;
+
+	                case 6:
+	                    employee.viewAttendance();
+	                    break;
+
+	                case 7:
+	                    System.out.println("\nThank you for using the MotorPH Employee App! Goodbye.");
+	                    break;
+
+	                default:
+	                    System.out.println("\nInvalid choice. Please select a valid option.\n");
+	            }
+
+	        } while (choice != 7);
+
+	        scanner.close();
+	    }
+
+	    public static double getValidDoubleInput(Scanner scanner) {
+	        while (!scanner.hasNextDouble()) {
+	            System.out.println("Invalid input. Please enter a number.");
+	            scanner.next();
+	        }
+	        return scanner.nextDouble();
+	    }
+	}
