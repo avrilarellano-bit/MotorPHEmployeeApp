@@ -1,0 +1,212 @@
+package Employee;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.io.*;
+import java.util.ArrayList;
+
+public class MotorphEmployeeFullGUI extends JFrame {
+        private ArrayList<Employee> employees = new ArrayList<>();
+        private DefaultTableModel tableModel;
+        private JTable employeeTable;
+
+        public MotorphEmployeeFullGUI() {
+            loadCSV(); // Automatically load CSV on app start
+            loginScreen();
+        }
+
+        private void loginScreen() {
+            JFrame loginFrame = new JFrame("MotorPH Employee App - Login");
+            loginFrame.setSize(400, 200);
+            loginFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+            JPanel panel = new JPanel(new GridLayout(3, 2));
+            JLabel userLabel = new JLabel("Username:");
+            JTextField userField = new JTextField();
+            JLabel passLabel = new JLabel("Password:");
+            JPasswordField passField = new JPasswordField();
+            JButton loginButton = new JButton("Login");
+
+            panel.add(userLabel);
+            panel.add(userField);
+            panel.add(passLabel);
+            panel.add(passField);
+            panel.add(new JLabel());
+            panel.add(loginButton);
+
+            loginButton.addActionListener(e -> {
+                String username = userField.getText();
+                String password = new String(passField.getPassword());
+
+                if (username.equals("admin") && password.equals("admin")) {
+                    loginFrame.dispose();
+                    mainScreen();
+                } else {
+                    JOptionPane.showMessageDialog(loginFrame, "Invalid username or password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
+                }
+            });
+
+            loginFrame.add(panel);
+            loginFrame.setLocationRelativeTo(null);
+            loginFrame.setVisible(true);
+        }
+
+        private void mainScreen() {
+            setTitle("MotorPH Employee App");
+            setSize(1000, 600);
+            setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            setLayout(new BorderLayout());
+
+            String[] columnNames = {"Employee ID", "Name", "Position", "Department", "Hourly Rate"};
+            tableModel = new DefaultTableModel(columnNames, 0);
+            employeeTable = new JTable(tableModel);
+            JScrollPane scrollPane = new JScrollPane(employeeTable);
+            add(scrollPane, BorderLayout.CENTER);
+
+            // Load current CSV data into the table
+            for (Employee e : employees) {
+                tableModel.addRow(new Object[]{e.getEmployeeID(), e.getName(), e.getPosition(), e.getDepartment(), e.getHourlyRate()});
+            }
+
+            JPanel controlPanel = new JPanel();
+            JButton addButton = new JButton("Add Employee");
+            JButton viewButton = new JButton("View Employee");
+            JButton payrollButton = new JButton("View Payroll");
+            JButton loadButton = new JButton("Reload CSV");
+
+            controlPanel.add(addButton);
+            controlPanel.add(viewButton);
+            controlPanel.add(payrollButton);
+            controlPanel.add(loadButton);
+
+            add(controlPanel, BorderLayout.SOUTH);
+
+            addButton.addActionListener(e -> addEmployee());
+            viewButton.addActionListener(e -> viewEmployee());
+            payrollButton.addActionListener(e -> viewPayroll());
+            loadButton.addActionListener(e -> reloadCSV());
+
+            setLocationRelativeTo(null);
+            setVisible(true);
+        }
+
+        private void addEmployee() {
+            try {
+                int id = Integer.parseInt(JOptionPane.showInputDialog("Enter Employee ID:"));
+                String name = JOptionPane.showInputDialog("Enter Name:");
+                String position = JOptionPane.showInputDialog("Enter Position:");
+                String department = JOptionPane.showInputDialog("Enter Department:");
+                double rate = Double.parseDouble(JOptionPane.showInputDialog("Enter Hourly Rate:"));
+
+                Employee employee = new Employee(id, name, position, department, rate);
+                employees.add(employee);
+                tableModel.addRow(new Object[]{id, name, position, department, rate});
+                saveToCSV();
+                JOptionPane.showMessageDialog(this, "Employee added successfully.");
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Invalid number input. Please enter numeric values where required.", "Error", JOptionPane.ERROR_MESSAGE);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Error adding employee. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+
+        private void viewEmployee() {
+            try {
+                int id = Integer.parseInt(JOptionPane.showInputDialog("Enter Employee ID to View:"));
+                Employee emp = employees.stream().filter(e -> e.getEmployeeID() == id).findFirst().orElse(null);
+
+                if (emp != null) {
+                    JOptionPane.showMessageDialog(this, "Employee ID: " + emp.getEmployeeID() +
+                            "\nName: " + emp.getName() +
+                            "\nPosition: " + emp.getPosition() +
+                            "\nDepartment: " + emp.getDepartment() +
+                            "\nHourly Rate: PHP " + emp.getHourlyRate());
+                } else {
+                    JOptionPane.showMessageDialog(this, "Employee not found.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Invalid input. Please enter a valid employee ID.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+
+        private void viewPayroll() {
+            try {
+                int id = Integer.parseInt(JOptionPane.showInputDialog("Enter Employee ID to View Payroll:"));
+                Employee emp = employees.stream().filter(e -> e.getEmployeeID() == id).findFirst().orElse(null);
+
+                if (emp != null) {
+                    String month = JOptionPane.showInputDialog("Enter Month for Payroll Computation:");
+                    double hoursWorked = Double.parseDouble(JOptionPane.showInputDialog("Enter Hours Worked for " + month + ":"));
+                    double totalPay = emp.getHourlyRate() * hoursWorked;
+
+                    JOptionPane.showMessageDialog(this, "Payroll Details for " + emp.getName() +
+                            "\nMonth: " + month +
+                            "\nHours Worked: " + hoursWorked +
+                            "\nTotal Pay: PHP " + totalPay);
+                } else {
+                    JOptionPane.showMessageDialog(this, "Employee not found.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Invalid input. Please enter numeric values.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+
+        private void loadCSV() {
+            try (BufferedReader reader = new BufferedReader(new FileReader("employees.csv"))) {
+                String line;
+                employees.clear();
+
+                while ((line = reader.readLine()) != null) {
+                    String[] data = line.split(",");
+                    if (data.length == 5) {
+                        Employee e = new Employee(Integer.parseInt(data[0]), data[1], data[2], data[3], Double.parseDouble(data[4]));
+                        employees.add(e);
+                    }
+                }
+            } catch (FileNotFoundException e) {
+                // If CSV doesn't exist, create it
+                try {
+                    new FileWriter("employees.csv").close();
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(this, "Error creating new CSV file.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(this, "Error loading employee records.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+
+        private void reloadCSV() {
+            try (BufferedReader reader = new BufferedReader(new FileReader("employees.csv"))) {
+                String line;
+                employees.clear();
+                tableModel.setRowCount(0);
+
+                while ((line = reader.readLine()) != null) {
+                    String[] data = line.split(",");
+                    if (data.length == 5) {
+                        Employee e = new Employee(Integer.parseInt(data[0]), data[1], data[2], data[3], Double.parseDouble(data[4]));
+                        employees.add(e);
+                        tableModel.addRow(new Object[]{e.getEmployeeID(), e.getName(), e.getPosition(), e.getDepartment(), e.getHourlyRate()});
+                    }
+                }
+                JOptionPane.showMessageDialog(this, "Employee records reloaded successfully.");
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(this, "Error reloading employee records.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+
+        private void saveToCSV() {
+            try (PrintWriter writer = new PrintWriter(new FileWriter("employees.csv"))) {
+                for (Employee e : employees) {
+                    writer.println(e.getEmployeeID() + "," + e.getName() + "," + e.getPosition() + "," + e.getDepartment() + "," + e.getHourlyRate());
+                }
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(this, "Error saving employee records.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+
+        public static void main(String[] args) {
+            SwingUtilities.invokeLater(MotorphEmployeeFullGUI::new);
+        }
+    }
